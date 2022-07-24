@@ -25,17 +25,17 @@ attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap
 
 // Create a base layer that holds both maps.
 let baseMaps = {
-  Streets: streets,
-  SatelliteStreets: satelliteStreets
+  "Streets": streets,
+  "SatelliteStreets": satelliteStreets
   };
 
 // Create the map object with a center and zoom level.
   let map = L.map("mapid", {
     center: [
-      44.0, -80.0
+      39.5, -98.5
    ],
-   zoom: 2,
-   layers:[light]
+   zoom: 3,
+   layers:[streets]
  });
  // Pass our map layers into our layers control and add the layers control to the map.
  L.control.layers(baseMaps).addTo(map);
@@ -43,7 +43,7 @@ let baseMaps = {
 // Having the tileLayer() method before accessing large datasets ensures that the map gets loaded before the data is added to it
 
 // Accessing the Toronto airline routes GeoJSON URL.
-let torontoData = "https://raw.githubusercontent.com/taviosammy/Mapping_Earthquakes/main/torontoRoutes.json";
+let earthData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
 
 // Create a style for the lines.
 let myStyle = {
@@ -52,14 +52,8 @@ let myStyle = {
 }
 
 // Grabbing our GeoJSON data.
-d3.json(torontoData).then(function(data) {
+d3.json(earthData).then(function(data) {
   console.log(data);
 // Creating a GeoJSON layer with the retrieved data.
-L.geoJSON(data, {
-  style: myStyle,
-  onEachFeature: function(feature, layer) {
-    layer.bindPopup("<h3> Airline:" + feature.properties.airline + "</h3> <hr> <h3> Destination:"
-    + feature.properties.dst + "</h3>");
-  }
-}).addTo(map);
+L.geoJSON(data).addTo(map);
 });

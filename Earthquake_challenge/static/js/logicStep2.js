@@ -25,17 +25,17 @@ attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap
 
 // Create a base layer that holds both maps.
 let baseMaps = {
-  Streets: streets,
-  SatelliteStreets: satelliteStreets
+  "Streets": streets,
+  "SatelliteStreets": satelliteStreets
   };
 
 // Create the map object with a center and zoom level.
   let map = L.map("mapid", {
     center: [
-      44.0, -80.0
+      39.5, -98.5
    ],
-   zoom: 2,
-   layers:[light]
+   zoom: 3,
+   layers:[streets]
  });
  // Pass our map layers into our layers control and add the layers control to the map.
  L.control.layers(baseMaps).addTo(map);
@@ -43,23 +43,40 @@ let baseMaps = {
 // Having the tileLayer() method before accessing large datasets ensures that the map gets loaded before the data is added to it
 
 // Accessing the Toronto airline routes GeoJSON URL.
-let torontoData = "https://raw.githubusercontent.com/taviosammy/Mapping_Earthquakes/main/torontoRoutes.json";
+let earthData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
 
-// Create a style for the lines.
-let myStyle = {
-  color: "#ffffa1",
-  weight: 2
+// This function returns the style data for each of the earthquakes we plot on
+// the map. We pass the magnitude of the earthquake into a function
+// to calculate the radius.
+function styleInfo(feature) {
+  return {
+    opacity: 1,
+    fillOpacity: 1,
+    fillColor: "#ffae42",
+    color: "#000000",
+    radius: getRadius(feature.properties.mag),
+    stroke: true,
+    weight: 0.5
+  };
+}
+
+// This function determines the radius of the earthquake marker based on its magnitude.
+// Earthquakes with a magnitude of 0 will be plotted with a radius of 1.
+function getRadius(magnitude) {
+  if (magnitude === 0) {
+    return 1;
+  }
+  return magnitude * 4;
 }
 
 // Grabbing our GeoJSON data.
-d3.json(torontoData).then(function(data) {
+d3.json(earthData).then(function(data) {
   console.log(data);
 // Creating a GeoJSON layer with the retrieved data.
 L.geoJSON(data, {
-  style: myStyle,
-  onEachFeature: function(feature, layer) {
-    layer.bindPopup("<h3> Airline:" + feature.properties.airline + "</h3> <hr> <h3> Destination:"
-    + feature.properties.dst + "</h3>");
-  }
+  pointToLayer: function(feature, latlng) {
+  return L.circleMarker(latlng);
+  },
+  style: styleInfo
 }).addTo(map);
 });
